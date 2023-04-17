@@ -1,0 +1,299 @@
+<uses-permission android:name="android.permission.WAKE_LOCK" />
+<activity
+
+  android:name="com.example.musicplayer.MainActivity"
+
+  android:label="@string/app_name"
+
+  android:launchMode="singleTop"
+
+  android:screenOrientation="portrait" >
+  <service android:name="com.example.Arcane.MusicService" />
+  <LinearLayout xmlns:android="https://schemas.android.com/apk/res/android"
+
+  xmlns:tools="http://schemas.android.com/tools"
+
+  android:layout_width="fill_parent"
+
+  android:layout_height="fill_parent"
+
+  android:orientation="vertical"
+
+  android:background="#FF330000"
+
+  tools:context=".MainActivity" >
+
+  <ListView
+
+    android:id="@+id/song_list"
+
+    android:layout_width="fill_parent"
+
+    android:layout_height="wrap_content" >
+
+  </ListView>
+
+</LinearLayout>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+  
+      android:id="@+id/action_shuffle"
+  
+      android:icon="@drawable/rand"
+  
+      android:orderInCategory="1"
+  
+      android:showAsAction="always"
+  
+      android:title="Shuffle"/>
+  
+    <item
+  
+      android:id="@+id/action_end"
+  
+      android:icon="@drawable/end"
+  
+      android:orderInCategory="2"
+  
+      android:showAsAction="always"
+  
+      android:title="End"/>
+  
+  </menu>
+  private long id;
+
+private String title;
+
+private String artist;
+public Song(long songID, String songTitle, String songArtist) {
+
+    id=songID;
+  
+    title=songTitle;
+  
+    artist=songArtist;
+  
+  }
+public long getID(){return id;}
+
+public String getTitle(){return title;}
+
+public String getArtist(){return artist;}
+import java.util.ArrayList;
+
+import java.util.Collections;
+
+import java.util.Comparator;
+
+import android.net.Uri;
+
+import android.content.ContentResolver;
+
+import android.database.Cursor;
+
+import android.widget.ListView;
+private ArrayList<Song> songList;
+
+private ListView songView;
+songView = (ListView)findViewById(R.id.song_list);
+songList = new ArrayList<Song>();
+    public void getSongList() {
+
+        //retrieve song info
+      
+      }
+      ContentResolver musicResolver = getContentResolver();
+
+      Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+      
+      Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
+      if(musicCursor!=null && musicCursor.moveToFirst()){
+
+        //get columns
+      
+        int titleColumn = musicCursor.getColumnIndex
+      
+          (android.provider.MediaStore.Audio.Media.TITLE);
+      
+        int idColumn = musicCursor.getColumnIndex
+      
+          (android.provider.MediaStore.Audio.Media._ID);
+      
+        int artistColumn = musicCursor.getColumnIndex
+      
+          (android.provider.MediaStore.Audio.Media.ARTIST);
+      
+        //add songs to list
+      
+        do {
+      
+          long thisId = musicCursor.getLong(idColumn);
+      
+          String thisTitle = musicCursor.getString(titleColumn);
+      
+          String thisArtist = musicCursor.getString(artistColumn);
+      
+          songList.add(new Song(thisId, thisTitle, thisArtist));
+      
+        }
+      
+        while (musicCursor.moveToNext());
+      
+      }
+      Collections.sort(songList, new Comparator<Song>(){
+
+        public int compare(Song a, Song b){
+      
+          return a.getTitle().compareTo(b.getTitle());
+      
+        }
+      
+      });
+      <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+      xmlns:tools="http://schemas.android.com/tools"
+    
+      android:layout_width="fill_parent"
+    
+      android:layout_height="wrap_content"
+    
+      android:onClick="songPicked"
+    
+      android:orientation="vertical"
+    
+      android:padding="5dp" >
+    
+      <TextView
+    
+        android:id="@+id/song_title"
+    
+        android:layout_width="fill_parent"
+    
+        android:layout_height="wrap_content"
+    
+        android:textColor="#FFFFFF99"
+    
+        android:textSize="20sp"
+    
+        android:textStyle="bold" />
+    
+      <TextView
+    
+        android:id="@+id/song_artist"
+    
+        android:layout_width="fill_parent"
+    
+        android:layout_height="wrap_content"
+    
+        android:textColor="#FFFFFF99"
+    
+        android:textSize="18sp" />
+    
+    </LinearLayout>
+    public class SongAdapter extends BaseAdapter {
+
+        @Override
+      
+        public int getCount() {
+      
+          // TODO Auto-generated method stub
+      
+          return 0;
+      
+        }
+      
+        @Override
+      
+        public Object getItem(int arg0) {
+      
+          // TODO Auto-generated method stub
+      
+          return null;
+      
+        }
+      
+        @Override
+      
+        public long getItemId(int arg0) {
+      
+          // TODO Auto-generated method stub
+      
+          return 0;
+      
+        }
+      
+        @Override
+      
+        public View getView(int arg0, View arg1, ViewGroup arg2) {
+      
+          // TODO Auto-generated method stub
+      
+          return null;
+      
+        }
+      
+      }
+      import java.util.ArrayList;
+
+      import android.content.Context;
+      
+      import android.view.LayoutInflater;
+      
+      import android.widget.LinearLayout;
+      
+      import android.widget.TextView;
+      private ArrayList<Song> songs;
+
+        private LayoutInflater songInf;
+        public SongAdapter(Context c, ArrayList<Song> theSongs){
+
+            songs=theSongs;
+          
+            songInf=LayoutInflater.from(c);
+          
+          }
+          @Override
+
+          public int getCount() {
+          
+            return songs.size();
+          
+          }
+          @Override
+
+          public View getView(int position, View convertView, ViewGroup parent) {
+          
+            //map to song layout
+          
+            LinearLayout songLay = (LinearLayout)songInf.inflate
+          
+                (R.layout.song, parent, false);
+          
+            //get title and artist views
+          
+            TextView songView = (TextView)songLay.findViewById(R.id.song_title);
+          
+            TextView artistView = (TextView)songLay.findViewById(R.id.song_artist);
+          
+            //get song using position
+          
+            Song currSong = songs.get(position);
+          
+            //get title and artist strings
+          
+            songView.setText(currSong.getTitle());
+          
+            artistView.setText(currSong.getArtist());
+          
+            //set position as tag
+          
+            songLay.setTag(position);
+          
+            return songLay;
+          
+          }
+          SongAdapter songAdt = new SongAdapter(this, songList);
+
+          songView.setAdapter(songAdt);
+                                 
